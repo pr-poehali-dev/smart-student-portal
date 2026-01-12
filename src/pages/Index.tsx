@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { VkLoginButton } from '@/components/extensions/vk-auth/VkLoginButton';
+import { useVkAuth } from '@/components/extensions/vk-auth/useVkAuth';
 
 type Course = {
   id: number;
@@ -43,11 +45,20 @@ type Leader = {
 
 const Index = () => {
   const [showAuth, setShowAuth] = useState(true);
-  const [authStep, setAuthStep] = useState<'phone' | 'name'>('phone');
+  const [authStep, setAuthStep] = useState<'phone' | 'name' | 'method'>('method');
   const [phone, setPhone] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [activeTab, setActiveTab] = useState('courses');
+
+  const vkAuth = useVkAuth({
+    apiUrls: {
+      authUrl: 'https://functions.poehali.dev/198632ae-67a0-4dcb-a577-6da8333f3097?action=auth-url',
+      callback: 'https://functions.poehali.dev/198632ae-67a0-4dcb-a577-6da8333f3097?action=callback',
+      refresh: 'https://functions.poehali.dev/198632ae-67a0-4dcb-a577-6da8333f3097?action=refresh',
+      logout: 'https://functions.poehali.dev/198632ae-67a0-4dcb-a577-6da8333f3097?action=logout',
+    },
+  });
 
   const userStats = {
     name: 'Максим',
@@ -97,22 +108,46 @@ const Index = () => {
     }
   };
 
+  const handlePhoneLogin = () => {
+    setAuthStep('phone');
+  };
+
   return (
     <>
       <Dialog open={showAuth} onOpenChange={setShowAuth}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl text-center">
-              {authStep === 'phone' ? '📱 Добро пожаловать!' : '✨ Расскажи о себе'}
+              {authStep === 'method' ? '🎓 Добро пожаловать!' : authStep === 'phone' ? '📱 Вход по телефону' : '✨ Расскажи о себе'}
             </DialogTitle>
             <DialogDescription className="text-center">
-              {authStep === 'phone'
+              {authStep === 'method'
+                ? 'Выберите способ входа'
+                : authStep === 'phone'
                 ? 'Введи свой номер телефона для входа'
                 : 'Как тебя зовут?'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            {authStep === 'phone' ? (
+            {authStep === 'method' ? (
+              <div className="space-y-3">
+                <VkLoginButton
+                  onClick={vkAuth.login}
+                  isLoading={vkAuth.isLoading}
+                  className="w-full"
+                  buttonText="Войти через ВКонтакте"
+                />
+                <Button
+                  onClick={handlePhoneLogin}
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                >
+                  <Icon name="Phone" className="mr-2" size={20} />
+                  Войти по номеру телефона
+                </Button>
+              </div>
+            ) : authStep === 'phone' ? (
               <div className="space-y-2">
                 <Label htmlFor="phone">Номер телефона</Label>
                 <Input
