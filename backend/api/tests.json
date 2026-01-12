@@ -1,0 +1,24 @@
+{
+  "tests": [
+    {
+      "name": "Get courses list",
+      "method": "GET",
+      "path": "/?action=get-courses&user_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "courses": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Get achievements",
+      "method": "GET",
+      "path": "/?action=get-achievements&user_id=1",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "achievements": "array"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
